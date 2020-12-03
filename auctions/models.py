@@ -1,0 +1,33 @@
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+
+class User(AbstractUser):
+    pass
+
+def image_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/auctions/images/<filename>
+    return f"auctions/static/auctions/images/{filename}"
+
+class Listing(models.Model):
+    KEY_NAME = ["FOOD", "FASHION", "TOYS", "ELECTRONICS", "HOME", "SOLAR", "EDUCATION", "TECHNOLOGY", "PLANTS", "ANIMALS"]
+    VALUE_SYS = ["FOD","FAS","TOY","ELC","HOM","SLR","EDU","TEC","PLT","ANI"]
+    user_choice = {key:value for (key,value) in zip(KEY_NAME, VALUE_SYS)}
+    CATEGORIES = [(v, k) for (k,v) in user_choice.items()]
+    
+    title = models.CharField(max_length=64)
+    description = models.TextField(max_length=100)
+    c_price = models.IntegerField()
+    image = models.ImageField(upload_to=image_directory_path)
+    category = models.CharField(max_length=3, blank=True, choices=CATEGORIES, default=CATEGORIES[0][0])
+
+    def __str__(self):
+        return f"{self.title} {self.description} {self.c_price} {self.image} {self.category}"
+
+
+
+class Watch(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owner")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="watchlist")
+    def __str__(self):
+        return f"{self.user} {self.listing}"

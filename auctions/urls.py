@@ -1,0 +1,14 @@
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path("", views.index, name="index"),
+    path("login", views.login_view, name="login"),
+    path("logout", views.logout_view, name="logout"),
+    path("register", views.register, name="register"),
+    path("createList", views.createList, name="createList"),
+    path("<int:id>", views.listing, name="listing"),
+    path("watch", views.watch, name="watch"),
+    path("add_remove_watch/<int:id>", views.add_remove_watch, name="add_remove_watch")
+]

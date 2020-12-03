@@ -1,0 +1,60 @@
+{% extends "auctions/layout.html" %}
+
+{% load static %}
+
+{% block title %} {{listing.title}} {% endblock %}
+
+{% block head %}
+    <style>
+        .main{
+            width: 700px;
+            margin: 0px auto;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h2>{{listing.title}}</h2>
+
+    <!-- TODO -->
+        <section class="main">
+            {% if user.is_authenticated %}
+            <a href="{% url 'add_remove_watch' listing.id %}">{{add_remove_watchlist}}</a>
+            {% endif %}
+             This page will contain details about this particular listing:
+             <ol>
+                 <li>Title : {{listing.title}}</li>
+                 <li>Big Size Image</li>
+                 <li>Description : {{listing.description}}</li>
+                 <li>Current Bid Price : >${{listing.c_price}}.00</li>
+                    {% if user.is_authenticated %}
+                    <ul>
+                        <li>If user is signed in:
+                        <li>Welcome <strong>{{ user.username }}</strong>.</li>
+                        <li>Add or remove from watchlist</li>
+                        <li>Bid on the item:
+                            <ul>
+                                <li>bid input must be greater than or equal to starting bid && must be greater than current bid if any</li>
+                                <li>Else: Provide error</li>
+                            </ul>
+                        </li>
+                        <li>if user is the listing owner:
+                            <ul>
+                                <li>Can remove the listing wish make highest bidder winner</li>
+                                <li>when remove, it will no longer be active</li>
+                            </ul>
+                        </li>
+                        <li>if the winner of the bid logs in on the bid, the page should announce him as winner</li>
+                        <li>A signed in user should be able to comment on the listing</li>
+                    </ul>
+                    {% else %}
+                        <li>Login for more actions</li>
+                    {% endif %}
+                         
+                 </li>
+                 <li>This page should display all comments</li>
+
+             </ol>
+        </section>
+    
+{% endblock %}
