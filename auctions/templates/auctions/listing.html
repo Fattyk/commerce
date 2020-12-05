@@ -28,6 +28,25 @@
                  <li>Description : {{listing.description}}</li>
                  <li>Current Bid Price : >${{listing.c_price}}.00</li>
                     {% if user.is_authenticated %}
+
+
+                    <form action="#" method="POST">
+                        {% csrf_token %}
+                        <input type="number" placeholder="bid" name="bid">
+                        <input type="submit">
+                    </form>
+
+                    <a href="#">Remove listing</a>
+
+                    <form action="#" method="POST">
+                        {% csrf_token %}
+                        <textarea placeholder="Add your Comment"></textarea>
+                        <input type="submit">
+                    </form>
+
+                    <h3>Comments Section</h3>
+                    {{comments}}
+
                     <ul>
                         <li>If user is signed in:
                         <li>Welcome <strong>{{ user.username }}</strong>.</li>
