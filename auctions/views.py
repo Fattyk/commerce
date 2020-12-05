@@ -3,24 +3,23 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-
-from .models import User, Listing, Watch
+from django import forms
+from .models import User, Listing, Watch, Bid
 from django.contrib.auth.decorators import login_required
 import re
 
 # @login_required
 def index(request):
     listings = Listing.objects.all()[::-1] #reverse listing with slice [::-1] such that last entry comes first
+     
+    # Generate categories
+    code_categories = [item.category for item in listings]
+    readable_categories = [Listing.value[item] for item in code_categories]    
+    items = zip(listings, readable_categories)  
     
-    if listings: 
-        # Generate categories
-        code_categories = [item.category for item in listings]
-        readable_categories = [Listing.value[item] for item in code_categories]    
-        items = zip(listings, readable_categories)  
-        
-        for listing in listings:
-            item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
-            listing.image = item   
+    for listing in listings:
+        item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
+        listing.image = item   
     return render(request, "auctions/index.html",{
         "listings":items,
         "title":"Active Listings",
@@ -60,6 +59,35 @@ def category(request, category):
 def createList(request):
     return render(request, "auctions/createList.html")
 
+
+class BidForm(forms.Form):
+    bid = forms.IntegerField(label="Bid")
+
+@login_required
+def bid(request, id):
+    if request.method == "POST":
+        
+        # bid = request.POST.get("bid")
+        bidform = BidForm(request.POST)
+
+        if bidform.is_valid():
+            bid = bidform.cleaned_data["bid"]
+            # total bidder so far:
+            listing = Listing.objects.get(id=id)
+            if (bid>listing.c_price):
+                listing.highest_bidder = request.user
+                listing.c_price = bid
+                listing.save()
+                save_bid = Bid(user=request.user, listing=listing, bid=bid)
+                save_bid.save()
+                return HttpResponseRedirect(reverse('listing', args=(id,)))
+
+            return HttpResponse("Bid must be greater than current bid")
+        return HttpResponse("In valid form input")
+    
+    return HttpResponse("Error You have to Submit the form")
+
+
 # @login_required
 def listing(request, id):
     user = request.user
@@ -76,12 +104,17 @@ def listing(request, id):
         #     add_remove_watchlist = "I don't have you"
         
         add_remove_watchlist = "Remove from Watchlist" if (watch) else "Add to Watchlist"
-
+        total_bid = listing.bid_listing.all()
+        total_bid = len(total_bid)
         return render(request, "auctions/listing.html",{
             "listing":listing,
-            "add_remove_watchlist":add_remove_watchlist
+            "add_remove_watchlist":add_remove_watchlist,
+            "bidform": BidForm(),
+            "total_bid": total_bid
         })
     return render(request, "auctions/listing.html")
+
+
 @login_required
 def add_remove_watch(request, id):
     listing = Listing.objects.get(id=id)
@@ -115,6 +148,9 @@ def watch(request):
         "listings":items,
         "title":"Watchlist"
     })
+
+
+        
 
 
 def login_view(request):
