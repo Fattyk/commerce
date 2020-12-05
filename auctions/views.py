@@ -11,13 +11,49 @@ import re
 # @login_required
 def index(request):
     listings = Listing.objects.all()[::-1] #reverse listing with slice [::-1] such that last entry comes first
-    if listings:       
+    
+    if listings: 
+        # Generate categories
+        code_categories = [item.category for item in listings]
+        readable_categories = [Listing.value[item] for item in code_categories]    
+        items = zip(listings, readable_categories)  
+        
         for listing in listings:
             item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
             listing.image = item   
     return render(request, "auctions/index.html",{
-        "listings":listings,
-        "title":"Active Listings"
+        "listings":items,
+        "title":"Active Listings",
+    })
+
+def categories(request):
+    categories = [category for category in Listing.choice.keys()]
+    length = [len(Listing.objects.filter(category = val)) for val in Listing.value.keys()]
+
+    cat = zip(categories, length)  # cat = [(category,val) for category,val in zip(categories, length)]
+
+    return render(request, "auctions/categories.html", {
+        "categories": cat
+    })
+@login_required
+def category(request, category):
+    category = category.upper()
+    cat = category
+    category = Listing.choice[category] # Fetch this category key from Listing class
+    categories = Listing.objects.filter(category = category) # Fetch all listing associated with this category key and reverse the listing with slice [::-1] such that last entry comes first
+    
+    # Generate categories
+    code_categories = [item.category for item in categories]
+    readable_categories = [Listing.value[item] for item in code_categories]    
+    items = zip(categories, readable_categories)
+    
+    if categories:       
+        for listing in categories:
+            item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
+            listing.image = item   
+    return render(request, "auctions/index.html",{
+        "listings":items,
+        "title":f"{cat} Listings"
     })
 
 @login_required
@@ -26,24 +62,26 @@ def createList(request):
 
 # @login_required
 def listing(request, id):
-    listing = Listing.objects.get(id=id)
-    # listings = Listing.objects.all()
-    # for item in listings:
-    #     if item.id == id:
-    #         listing = item
     user = request.user
-    watch = Watch.objects.filter(user=user, listing=listing)
-    # if watch:
-    #     add_remove_watchlist  = "I have you"
-    # else:
-    #     add_remove_watchlist = "I don't have you"
-    
-    add_remove_watchlist = "Remove from Watchlist" if (watch) else "Add to Watchlist"
+    if user.is_authenticated:
+        listing = Listing.objects.get(id=id)
+        # listings = Listing.objects.all()
+        # for item in listings:
+        #     if item.id == id:
+        #         listing = item
+        watch = Watch.objects.filter(user=user, listing=listing)
+        # if watch:
+        #     add_remove_watchlist  = "I have you"
+        # else:
+        #     add_remove_watchlist = "I don't have you"
+        
+        add_remove_watchlist = "Remove from Watchlist" if (watch) else "Add to Watchlist"
 
-    return render(request, "auctions/listing.html",{
-        "listing":listing,
-        "add_remove_watchlist":add_remove_watchlist
-    })
+        return render(request, "auctions/listing.html",{
+            "listing":listing,
+            "add_remove_watchlist":add_remove_watchlist
+        })
+    return render(request, "auctions/listing.html")
 @login_required
 def add_remove_watch(request, id):
     listing = Listing.objects.get(id=id)
@@ -68,9 +106,13 @@ def watch(request):
             image = re.sub("^.*/auctions/", "/auctions/", item.image.url)
             item.image = image
             watch.append(item)
+    # Generate categories
+    code_categories = [item.listing.category for item in user_items]
+    readable_categories = [Listing.value[item] for item in code_categories]    
+    items = zip(watch, readable_categories)
     
     return render(request, "auctions/index.html",{
-        "listings":watch,
+        "listings":items,
         "title":"Watchlist"
     })
 

@@ -1,0 +1,32 @@
+{% extends "auctions/layout.html" %}
+
+{% load static %}
+
+{% block title %} Categories {% endblock %}
+
+{% block head %}
+    <style>
+        .main{
+            max-width: 700px;
+            margin: 0px auto;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h2>Pick from any of this categories</h2>
+
+    <!-- TODO -->
+        <section class="main">
+            
+             <ul>
+                 {% for category, val in categories %}
+                    <li><a href="{% url 'category' category %}">{{category}} : {{val}}</a></li>
+                 {% empty %}
+                    No Categories
+                 {% endfor %}
+
+             </ul>
+        </section>
+    
+{% endblock %}

@@ -11,9 +11,12 @@ def image_directory_path(instance, filename):
 
 class Listing(models.Model):
     KEY_NAME = ["FOOD", "FASHION", "TOYS", "ELECTRONICS", "HOME", "SOLAR", "EDUCATION", "TECHNOLOGY", "PLANTS", "ANIMALS"]
+    
     VALUE_SYS = ["FOD","FAS","TOY","ELC","HOM","SLR","EDU","TEC","PLT","ANI"]
-    user_choice = {key:value for (key,value) in zip(KEY_NAME, VALUE_SYS)}
-    CATEGORIES = [(v, k) for (k,v) in user_choice.items()]
+
+    choice = {key:value for (key,value) in zip(KEY_NAME, VALUE_SYS)}
+    value = {value:key for (key,value) in choice.items()}
+    CATEGORIES = [(v, k) for (k,v) in choice.items()]
     
     title = models.CharField(max_length=64)
     description = models.TextField(max_length=100)
