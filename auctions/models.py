@@ -44,3 +44,9 @@ class Bid(models.Model):
     bid = models.IntegerField()
     def __str__(self):
         return f"{self.user} {self.listing} {self.bid}"
+
+class Winner(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bid_winner")
+    message = models.CharField(max_length=150, null=True, blank=True)
+    def __str__(self):
+        return f"{self.user} {self.message}"

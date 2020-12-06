@@ -35,14 +35,19 @@
                         {{ bidform }}
                         <input type="submit">
                     </form>
-                    {{listing.highest_bidder.username}} has the highest bid
-                    {{total_bid}} bids so far.
-                    {{listing.highest_bidder.id}}
+                    
+                    
                     {% if listing.highest_bidder.id == user.id %}
+                    <small>{{total_bid}} bids so far. <span>You currently have the highest bid</span></small><br>
                         Your bid is the current bid
+                    {% else %}
+                    <small>{{total_bid}} bids so far. <span>{{listing.highest_bidder.username}} has the highest bid</span></small><br>
+                        {{listing.highest_bidder.username}}'s bid is the current bid
                     {% endif %}
-
-                    <a href="#">Remove listing</a>
+                    <br>
+                    {% if listing.user.id == user.id %}
+                        <a href="{% url 'remove_listing' listing.highest_bidder.id %}">Remove listing</a>
+                    {% endif %}
 
                     <form action="#" method="POST">
                         {% csrf_token %}

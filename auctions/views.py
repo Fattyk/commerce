@@ -89,6 +89,10 @@ def bid(request, id):
 
 
 # @login_required
+# def remove_listing(request, id, user):
+#     user = user
+#     Bid.objects.filter(user=user) 
+
 def listing(request, id):
     user = request.user
     if user.is_authenticated:
