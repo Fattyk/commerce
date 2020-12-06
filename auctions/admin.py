@@ -4,7 +4,7 @@ from .models import Listing, User, Watch, Bid
 # Register your models here.
 
 class ListingAdmin(admin.ModelAdmin):
-    list_display = ("title", "description", "c_price", "image")
+    list_display = ("title", "description", "c_price", "image", "category", "highest_bidder", "user")
 
 admin.site.register(Listing, ListingAdmin)
 admin.site.register(User)

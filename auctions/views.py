@@ -93,18 +93,9 @@ def listing(request, id):
     user = request.user
     if user.is_authenticated:
         listing = Listing.objects.get(id=id)
-        # listings = Listing.objects.all()
-        # for item in listings:
-        #     if item.id == id:
-        #         listing = item
         watch = Watch.objects.filter(user=user, listing=listing)
-        # if watch:
-        #     add_remove_watchlist  = "I have you"
-        # else:
-        #     add_remove_watchlist = "I don't have you"
-        
         add_remove_watchlist = "Remove from Watchlist" if (watch) else "Add to Watchlist"
-        total_bid = listing.bid_listing.all()
+        total_bid = listing.bid_listing.all() #Fetch all listing in listing of bids
         total_bid = len(total_bid)
         return render(request, "auctions/listing.html",{
             "listing":listing,
