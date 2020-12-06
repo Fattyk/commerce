@@ -1,0 +1,33 @@
+{% extends "auctions/layout.html" %}
+
+{% load static %}
+
+{% block title %} {{title}} {% endblock %}
+
+{% block head %}
+<style>
+    .main{
+        width: 700px;
+        margin: 0px auto;
+    }
+</style>
+
+{% endblock %}
+
+{% block body %}
+<h2>{{title}}</h2>
+    <!-- TODO -->
+    <section class="main">
+        {% if wins %}
+            <h3>Congratulations {{user.username}},</h3>
+        {% endif %}
+        {% for win in wins %}
+            <ul>
+                <li>{{win}}</li>
+            </ul>
+        {% empty %}
+            No Win Yet. Bid more
+        {% endfor %} 
+    </section>
+   
+{% endblock %}

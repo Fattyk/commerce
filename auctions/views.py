@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from .models import User, Listing, Watch, Bid
+from .models import User, Listing, Watch, Bid, Winner
 from django.contrib.auth.decorators import login_required
 import re
 
@@ -25,14 +25,25 @@ def index(request):
         "title":"Active Listings",
     })
 
+def won(request):
+    user = request.user
+    wins = [winner.message for winner in user.bid_winner.all()[::-1]]
+    return render(request, "auctions/won.html",{
+        "wins":wins
+    })
+
 def categories(request):
     categories = [category for category in Listing.choice.keys()]
     length = [len(Listing.objects.filter(category = val)) for val in Listing.value.keys()]
-
     cat = zip(categories, length)  # cat = [(category,val) for category,val in zip(categories, length)]
+    pick = "These are the active categories"
+    if max(length)==0:
+        cat = zip([],[])
+        pick = ""
 
     return render(request, "auctions/categories.html", {
-        "categories": cat
+        "categories": cat,
+        "pick":pick
     })
 @login_required
 def category(request, category):
@@ -88,10 +99,14 @@ def bid(request, id):
     return HttpResponse("Error You have to Submit the form")
 
 
-# @login_required
-# def remove_listing(request, id, user):
-#     user = user
-#     Bid.objects.filter(user=user) 
+@login_required
+def remove_listing(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)
+    highest_bidder = listing.highest_bidder 
+    winner = Winner(user=highest_bidder, message=f"You have won {listing.title} with ${listing.c_price}")
+    winner.save()
+    listing.delete()
+    return HttpResponseRedirect(reverse("index"))
 
 def listing(request, id):
     user = request.user

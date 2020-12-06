@@ -14,17 +14,20 @@
 {% endblock %}
 
 {% block body %}
-    <h2>Pick from any of this categories</h2>
+        <h2>{{pick}}</h2>
 
     <!-- TODO -->
         <section class="main">
             
              <ul>
                  {% for category, val in categories %}
-                    <li><a href="{% url 'category' category %}">{{category}} : {{val}}</a></li>
-                 {% empty %}
-                    No Categories
+                    {% if val %}
+                        <li><a href="{% url 'category' category %}">{{category}} : {{val}}</a></li>
+                    {% endif %} 
+                {% empty %}
+                    No Active Categories
                  {% endfor %}
+
 
              </ul>
         </section>

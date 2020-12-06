@@ -46,7 +46,7 @@
                     {% endif %}
                     <br>
                     {% if listing.user.id == user.id %}
-                        <a href="{% url 'remove_listing' listing.highest_bidder.id %}">Remove listing</a>
+                        <a href="{% url 'remove_listing' listing_id=listing.id %}">Remove listing</a>
                     {% endif %}
 
                     <form action="#" method="POST">
