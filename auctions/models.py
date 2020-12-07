@@ -22,7 +22,7 @@ class Listing(models.Model):
     description = models.TextField(max_length=100)
     c_price = models.IntegerField()
     image = models.ImageField(upload_to=image_directory_path)
-    category = models.CharField(max_length=3, blank=True, choices=CATEGORIES, default=CATEGORIES[0][0])
+    category = models.CharField(max_length=3, choices=CATEGORIES, default=CATEGORIES[0][0])
     highest_bidder = models.ForeignKey(User, blank=True, null= True, on_delete=models.CASCADE, related_name="highest_bidder")
     user = models.ForeignKey(User, blank=True, null= True, on_delete=models.CASCADE, related_name="uploader")
     # highest_bidder = models.CharField(max_length=64, blank=True)

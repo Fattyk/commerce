@@ -11,12 +11,13 @@ import re
 # @login_required
 def index(request):
     listings = Listing.objects.all()[::-1] #reverse listing with slice [::-1] such that last entry comes first
-     
-    # Generate categories
-    code_categories = [item.category for item in listings]
-    readable_categories = [Listing.value[item] for item in code_categories]    
-    items = zip(listings, readable_categories)  
-    
+    if listings:
+        # Generate categories
+        code_categories = [item.category for item in listings]
+        readable_categories = [Listing.value[item] for item in code_categories]    
+        items = zip(listings, readable_categories)
+    else:  
+        items = zip([],[])
     for listing in listings:
         item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
         listing.image = item   
@@ -51,16 +52,16 @@ def category(request, category):
     cat = category
     category = Listing.choice[category] # Fetch this category key from Listing class
     categories = Listing.objects.filter(category = category) # Fetch all listing associated with this category key and reverse the listing with slice [::-1] such that last entry comes first
-    
-    # Generate categories
-    code_categories = [item.category for item in categories]
-    readable_categories = [Listing.value[item] for item in code_categories]    
-    items = zip(categories, readable_categories)
-    
-    if categories:       
+    if categories:
+        # Generate categories
+        code_categories = [item.category for item in categories]
+        readable_categories = [Listing.value[item] for item in code_categories]    
+        items = zip(categories, readable_categories)
         for listing in categories:
             item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
-            listing.image = item   
+            listing.image = item
+    else:
+        items = zip([],[])           
     return render(request, "auctions/index.html",{
         "listings":items,
         "title":f"{cat} Listings"
@@ -88,7 +89,19 @@ class CreateListingForm(forms.Form):
 def createList(request):
     if request.method == "POST":
         form = CreateListingForm(request.POST, request.FILES)
+        user_id = int(request.POST.get("user_id"))
+        
         if form.is_valid():
+            title = form.cleaned_data["title"]
+            description = form.cleaned_data["description"]
+            c_price = form.cleaned_data["c_price"]
+            image = form.cleaned_data["image"]
+            user = User.objects.get(id=user_id)
+            save_listing = Listing(title=title, description=description, c_price=c_price, category=category, user=user)
+            save_listing.save()
+            save_listing.image=image
+            save_listing.save()
+            
             return HttpResponse("Success")
         return render(request, "auctions/createList.html", {
             "CreateListingForm":form
