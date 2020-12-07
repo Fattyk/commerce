@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from .models import User, Listing, Watch, Bid, Winner
+from .models import User, Listing, Watch, Bid, Winner, Category
 from django.contrib.auth.decorators import login_required
 import re
 
@@ -72,7 +72,6 @@ def category(request, category):
     })
 
 class CreateListingForm(forms.Form):
-    CATEGORIES = Listing.CATEGORIES    
     title = forms.CharField(label="Title:", max_length=64, widget=forms.TextInput(attrs={
         "class":"form-control"
     }))
@@ -85,7 +84,9 @@ class CreateListingForm(forms.Form):
     image = forms.ImageField(label="Upload Image:", widget=forms.ClearableFileInput(attrs={
         "class":"form-control"
     }))
-    category = forms.ChoiceField(label="Choose Category:", choices=CATEGORIES, widget=forms.Select(attrs={
+    # category = [item.category for item in Category.objects.all()] # [(k, v) for k,v in enumerate(category)]
+    categories =  [(item.id, item.category) for item in Category.objects.all()]
+    category = forms.ChoiceField(label="Choose Category:", choices=categories, widget=forms.Select(attrs={
         "class":"form-control"
     }))
 
@@ -94,8 +95,9 @@ def createList(request):
     if request.method == "POST":
         form = CreateListingForm(request.POST, request.FILES)
         user_id = int(request.POST.get("user_id"))
-        
         if form.is_valid():
+            category_id = int(form.cleaned_data["category"])
+            category = Category.objects.get(category_id)
             title = form.cleaned_data["title"]
             description = form.cleaned_data["description"]
             c_price = form.cleaned_data["c_price"]
