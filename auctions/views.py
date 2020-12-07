@@ -10,46 +10,83 @@ import re
 
 # @login_required
 def index(request):
+    """
+    View about the index page
+    """
     listings = Listing.objects.all()[::-1] #reverse listing with slice [::-1] such that last entry comes first
-    if listings:
-        # Generate categories
-        code_categories = [item.category for item in listings]
-        readable_categories = [Listing.value[item] for item in code_categories]    
-        items = zip(listings, readable_categories)
-    else:  
-        items = zip([],[])
+    
     for listing in listings:
+        # change the image url to where static can access it
         item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
         listing.image = item   
+
     return render(request, "auctions/index.html",{
-        "listings":items,
+        "listings":listings,
         "title":"Active Listings",
     })
 
-def won(request):
-    user = request.user
-    wins = [winner.message for winner in user.bid_winner.all()[::-1]]
-    return render(request, "auctions/won.html",{
-        "wins":wins
-    })
+
+def login_view(request):
+    if request.method == "POST":
+
+        # Attempt to sign user in
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+
+        # Check if authentication successful
+        if user is not None:
+            login(request, user)
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            return render(request, "auctions/login.html", {
+                "message": "Invalid username and/or password."
+            })
+    else:
+        return render(request, "auctions/login.html")
+
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("index"))
+
+def register(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        email = request.POST["email"]
+
+        # Ensure password matches confirmation
+        password = request.POST["password"]
+        confirmation = request.POST["confirmation"]
+        if password != confirmation:
+            return render(request, "auctions/register.html", {
+                "message": "Passwords must match."
+            })
+
+        # Attempt to create new user
+        try:
+            user = User.objects.create_user(username, email, password)
+            user.save()
+        except IntegrityError:
+            return render(request, "auctions/register.html", {
+                "message": "Username already taken."
+            })
+        login(request, user)
+        return HttpResponseRedirect(reverse("index"))
+    else:
+        return render(request, "auctions/register.html")
+
 
 def categories(request):
-    categories = [category for category in Listing.choice.keys()]
-    if categories:
-        length = [len(Listing.objects.filter(category = val)) for val in Listing.value.keys()]
-        cat = zip(categories, length)  # cat = [(category,val) for category,val in zip(categories, length)]
-        pick = "These are the active categories"
-        if max(length)==0:
-            cat = zip([],[])
-            pick = ""
-    else:
-        cat = zip([],[])
-        pick = ""
-
+    categories = {item.category for item in Listing.objects.all()} # collect all active categories using set to avoid dublicate
+    categories = [(item, len(Listing.objects.filter(category = item))) for item in categories]
+    pick = "These are the active categories" if (categories) else ""
     return render(request, "auctions/categories.html", {
-        "categories": cat,
+        "categories": categories,
         "pick":pick
     })
+
+    
 @login_required
 def category(request, category):
     category = category.upper()
@@ -97,7 +134,7 @@ def createList(request):
         user_id = int(request.POST.get("user_id"))
         if form.is_valid():
             category_id = int(form.cleaned_data["category"])
-            category = Category.objects.get(category_id)
+            category = Category.objects.get(id=category_id)
             title = form.cleaned_data["title"]
             description = form.cleaned_data["description"]
             c_price = form.cleaned_data["c_price"]
@@ -205,56 +242,12 @@ def watch(request):
         "title":"Watchlist"
     })
 
-
+def won(request):
+    user = request.user
+    wins = [winner.message for winner in user.bid_winner.all()[::-1]]
+    return render(request, "auctions/won.html",{
+        "wins":wins
+    })
         
 
 
-def login_view(request):
-    if request.method == "POST":
-
-        # Attempt to sign user in
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
-
-        # Check if authentication successful
-        if user is not None:
-            login(request, user)
-            return HttpResponseRedirect(reverse("index"))
-        else:
-            return render(request, "auctions/login.html", {
-                "message": "Invalid username and/or password."
-            })
-    else:
-        return render(request, "auctions/login.html")
-
-
-def logout_view(request):
-    logout(request)
-    return HttpResponseRedirect(reverse("index"))
-
-def register(request):
-    if request.method == "POST":
-        username = request.POST["username"]
-        email = request.POST["email"]
-
-        # Ensure password matches confirmation
-        password = request.POST["password"]
-        confirmation = request.POST["confirmation"]
-        if password != confirmation:
-            return render(request, "auctions/register.html", {
-                "message": "Passwords must match."
-            })
-
-        # Attempt to create new user
-        try:
-            user = User.objects.create_user(username, email, password)
-            user.save()
-        except IntegrityError:
-            return render(request, "auctions/register.html", {
-                "message": "Username already taken."
-            })
-        login(request, user)
-        return HttpResponseRedirect(reverse("index"))
-    else:
-        return render(request, "auctions/register.html")

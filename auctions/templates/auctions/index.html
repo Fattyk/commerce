@@ -14,7 +14,7 @@
 <h2>{{title}}</h2>
     <!-- TODO -->
     <section class="main">
-        {% for listing, category in listings %}
+        {% for listing in listings %}
             <section class="item-container">
                 <a href="{% url 'listing' listing.id %}"><div class="for-img"><img src="{% static listing.image %}" alt="image here"></div></a> 
                     <h4 class="list-title">{{listing.title}}</h4>
@@ -22,7 +22,7 @@
                         <div class="for-content">
                             <div class="price">
                                 <p>Current bid: ${{listing.c_price}}.00</p>
-                                <small>Category:<span>"{{category|safe}}"</span></small><br>
+                                <small>Category:<span>{{ listing.category.category }}</span></small><br>
                                 <small>Created:<span>29/11/2020</span></small>
                             </div>
                             <div class="description">{{listing.description}}</div>

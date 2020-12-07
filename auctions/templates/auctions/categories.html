@@ -17,19 +17,15 @@
         <h2>{{pick}}</h2>
 
     <!-- TODO -->
-        <section class="main">
-            
-             <ul>
-                 {% for category, val in categories %}
-                    {% if val %}
-                        <li><a href="{% url 'category' category %}">{{category}} : {{val}}</a></li>
-                    {% endif %} 
-                {% empty %}
-                    No Active Categories
-                 {% endfor %}
-
-
-             </ul>
+        <section class="main"> 
+            {% for category, length in categories %}
+                <div class="row">   
+                    <div class="col-sm"><a href="{% url 'category' category.category %}">{{category.category}}</a></div>
+                    <div class="col-sm">{{length}}</div>
+                </div>
+            {% empty %}
+                No Active Categories
+            {% endfor %}
         </section>
     
 {% endblock %}
