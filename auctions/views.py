@@ -66,9 +66,36 @@ def category(request, category):
         "title":f"{cat} Listings"
     })
 
+class CreateListingForm(forms.Form):
+    CATEGORIES = Listing.CATEGORIES    
+    title = forms.CharField(label="Title:", max_length=64, widget=forms.TextInput(attrs={
+        "class":"form-control"
+    }))
+    description = forms.CharField(label="Description", max_length=100, widget=forms.Textarea(attrs={
+        "class":"form-control"
+    }))
+    c_price = forms.IntegerField(label="Price", widget=forms.NumberInput(attrs={
+        "class":"form-control"
+    }))
+    image = forms.ImageField(label="Upload Image:", widget=forms.ClearableFileInput(attrs={
+        "class":"form-control"
+    }))
+    category = forms.ChoiceField(label="Choose Category:", choices=CATEGORIES, widget=forms.Select(attrs={
+        "class":"form-control"
+    }))
+
 @login_required
 def createList(request):
-    return render(request, "auctions/createList.html")
+    if request.method == "POST":
+        form = CreateListingForm(request.POST, request.FILES)
+        if form.is_valid():
+            return HttpResponse("Success")
+        return render(request, "auctions/createList.html", {
+            "CreateListingForm":form
+        }) 
+    return render(request, "auctions/createList.html", {
+        "CreateListingForm":CreateListingForm()
+    })
 
 
 class BidForm(forms.Form):

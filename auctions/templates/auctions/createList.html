@@ -18,37 +18,15 @@
 
     <!-- TODO -->
         <section class="main">
-             <form>
-                 {% csrf_token %}
-                 <div class="form-group">
-                    <input type="text" class="form-control" id="title" placeholder="Title">
-                </div>
-                <div class="form-group">
-                        <textarea class="form-control" id="description" placeholder="Description"></textarea>
-                </div>
-                <div class="form-group">
-                        <input type="number" class="form-control" id="price" placeholder="Starting Bid:">
-                </div>
-                <div class="form-group">
-                    <label for="none">
-                        <input type="checkbox" class="form-control" name="category" id="none" value="none">No Category
-                    </label>
-                    <label for="fashion">
-                        <input type="checkbox" class="form-control" name="category" id="fashion" value="fashion">Fashion
-                    </label>
-                    <label for="technology">
-                        <input type="checkbox" class="form-control" name="category" id="technology" value="technology">Technology
-                    </label>
-                    <label for="food">
-                        <input type="checkbox" class="form-control" name="category" id="food" value="food">No Category
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label for="image">Upload Image:
-                        <input type="url" class="" id="image">
-                    </label>
-                </div>
-                 
+             <form action="{% url 'createList' %}" method="POST" enctype="multipart/form-data">
+                 <!--Note: Image will not upload unless we use: enctype="multipart/form-data" as form attributes  -->
+                {% csrf_token %}
+                 {{ CreateListingForm.as_p }}
+                 <br>
+                 <input type="hidden" name="user_id" value="{{user.id}}">
+                 <input type="submit" class="btn-btn-primary">
+                 <br>
+                 <br>
              </form>
         </section>
     
