@@ -35,10 +35,14 @@ def won(request):
 
 def categories(request):
     categories = [category for category in Listing.choice.keys()]
-    length = [len(Listing.objects.filter(category = val)) for val in Listing.value.keys()]
-    cat = zip(categories, length)  # cat = [(category,val) for category,val in zip(categories, length)]
-    pick = "These are the active categories"
-    if max(length)==0:
+    if categories:
+        length = [len(Listing.objects.filter(category = val)) for val in Listing.value.keys()]
+        cat = zip(categories, length)  # cat = [(category,val) for category,val in zip(categories, length)]
+        pick = "These are the active categories"
+        if max(length)==0:
+            cat = zip([],[])
+            pick = ""
+    else:
         cat = zip([],[])
         pick = ""
 

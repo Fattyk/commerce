@@ -6,13 +6,23 @@ class User(AbstractUser):
     pass
 
 def image_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/auctions/images/<filename>
-    return f"auctions/static/auctions/images/{filename}"
+        # file will be uploaded to MEDIA_ROOT/auctions/images/<filename>
+        return f"auctions/static/auctions/images/{filename}"
 
+class Category(models.Model):
+    """
+    Category class
+    """
+    category = models.CharField(max_length=20, unique=True)
+    def __str__(self):
+        return f"{self.category}"
+
+# ["FOOD", "FASHION", "TOYS", "ELECTRONICS", "HOME", "SOLAR", "EDUCATION", "TECHNOLOGY", "PLANTS", "ANIMALS"]
 class Listing(models.Model):
-    KEY_NAME = ["FOOD", "FASHION", "TOYS", "ELECTRONICS", "HOME", "SOLAR", "EDUCATION", "TECHNOLOGY", "PLANTS", "ANIMALS"]
+    user_cat = Category.objects.all() #or ["FOOD", "FASHION", "TOYS", "ELECTRONICS", "HOME", "SOLAR", "EDUCATION", "TECHNOLOGY", "PLANTS", "ANIMALS"]
+    KEY_NAME = [item.category for item in user_cat]
     
-    VALUE_SYS = ["FOD","FAS","TOY","ELC","HOM","SLR","EDU","TEC","PLT","ANI"]
+    VALUE_SYS = [num for num,text in enumerate(KEY_NAME)]
 
     choice = {key:value for (key,value) in zip(KEY_NAME, VALUE_SYS)}
     value = {value:key for (key,value) in choice.items()}
@@ -22,7 +32,7 @@ class Listing(models.Model):
     description = models.TextField(max_length=100)
     c_price = models.IntegerField()
     image = models.ImageField(upload_to=image_directory_path)
-    category = models.CharField(max_length=3, choices=CATEGORIES, default=CATEGORIES[0][0])
+    category = models.CharField(max_length=3, choices=CATEGORIES, null=True, blank=True)
     highest_bidder = models.ForeignKey(User, blank=True, null= True, on_delete=models.CASCADE, related_name="highest_bidder")
     user = models.ForeignKey(User, blank=True, null= True, on_delete=models.CASCADE, related_name="uploader")
     # highest_bidder = models.CharField(max_length=64, blank=True)
