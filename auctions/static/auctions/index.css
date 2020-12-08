@@ -11,6 +11,10 @@ img {
   max-width: 100%;
 }
 
+hr {
+  margin: 1px 0;
+}
+
 .main {
   width: 100%;
   display: flex;
@@ -19,24 +23,31 @@ img {
 .main .item-container {
   margin: 30px auto;
   box-sizing: border-box;
+  width: 300px;
+  height: 250px;
   border: 1px solid silver;
   border-radius: 10px;
   box-shadow: 6px 6px 10px slategray;
   font-size: small;
+  background-color: #fff !important;
 }
-.main .item-container .for-img {
+.main .item-container a {
+  text-decoration: none;
+  color: inherit;
+}
+.main .item-container a .for-img {
   height: 50%;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   border-bottom: 1px solid silver;
 }
-.main .item-container .for-img img {
+.main .item-container a .for-img img {
   max-height: 100%;
   margin: 0px auto;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 }
-.main .item-container .list-title {
+.main .item-container a .list-title {
   width: 80%;
   text-align: center;
   margin: 0px auto;
@@ -45,20 +56,25 @@ img {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.main .item-container .for-content {
+.main .item-container a .for-content {
   display: flex;
   justify-content: space-between;
 }
-.main .item-container .for-content .price {
+.main .item-container a .for-content .price {
   width: 39%;
   border-right: 1px solid silver;
   text-align: right;
   padding: 0px 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.main .item-container .for-content .description {
+.main .item-container a .for-content .description {
   width: 59%;
   text-align: left;
   padding: 0px 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /*# sourceMappingURL=index.css.map */

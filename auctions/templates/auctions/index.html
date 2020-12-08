@@ -5,9 +5,8 @@
 {% block title %} {{title}} {% endblock %}
 
 {% block head %}
-    <!-- <link rel="stylesheet" href="{% static 'auctions/index.css' %}"> -->
-    <link rel="stylesheet" href="{% static 'auctions/index2.css' %}">
-
+    <link rel="stylesheet" href="{% static 'auctions/index.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'auctions/index2.css' %}"> -->
 {% endblock %}
 
 {% block body %}
@@ -16,17 +15,18 @@
     <section class="main">
         {% for listing in listings %}
             <section class="item-container">
-                <a href="{% url 'listing' listing.id %}"><div class="for-img"><img src="{% static listing.image %}" alt="image here"></div></a> 
+                <a href="{% url 'listing' listing.id %}"><div class="for-img"><img src="{% static listing.image %}" alt="image here"></div> 
                     <h4 class="list-title">{{listing.title}}</h4>
                     <hr>
                         <div class="for-content">
                             <div class="price">
-                                <p>Current bid: ${{listing.c_price}}.00</p>
+                                <p>${{listing.c_price}}.00</p>
                                 <small>Category:<span>{{ listing.category.category }}</span></small><br>
                                 <small>Created:<span>29/11/2020</span></small>
                             </div>
                             <div class="description">{{listing.description}}</div>
                         </div>
+                    </a>
             </section>
         {% empty %}
             No Active Listing
