@@ -23,6 +23,7 @@
                     <div class="col-sm"><a href="{% url 'category' category.category %}">{{category.category}}</a></div>
                     <div class="col-sm">{{length}}</div>
                 </div>
+                <hr>
             {% empty %}
                 No Active Categories
             {% endfor %}

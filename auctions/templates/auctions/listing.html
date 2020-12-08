@@ -30,10 +30,15 @@
                     {% if user.is_authenticated %}
 
 
-                    <form action="{% url 'bid' listing.id %}" method="POST">
+                    <form action="{% url 'listing' listing.id %}" method="POST">
                         {% csrf_token %}
-                        {{ bidform }}
-                        <input type="submit">
+                        <div class="form-group">
+                            {{ bidform }}
+                            {% if error %}
+                            <small>{{ error }}</small>
+                            {% endif %}
+                        </div>
+                        <input type="submit"  class="btn-btn-primary">
                     </form>
                     
                     
@@ -46,17 +51,26 @@
                     {% endif %}
                     <br>
                     {% if listing.user.id == user.id %}
-                        <a href="{% url 'remove_listing' listing_id=listing.id %}">Remove listing</a>
+                        <a href="{% url 'remove_listing' listing.id %}">Remove listing</a>
                     {% endif %}
 
-                    <form action="#" method="POST">
-                        {% csrf_token %}
-                        <textarea placeholder="Add your Comment"></textarea>
-                        <input type="submit">
-                    </form>
+                    
 
                     <h3>Comments Section</h3>
-                    {{comments}}
+                    <br>
+                    <form action="{% url 'comment' listing.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <textarea name="comment" class="form-control" placeholder="Add your Comment" maxlength="200"></textarea>
+                        </div>
+                        <input type="submit" class="btn-btn-primary">
+                    </form>
+                    <hr>
+                    {% for comment in comments %}
+                        <h6>{{ comment.user.username }}</h5>
+                        <p>{{ comment.comment }}</p>
+                        <br>
+                    {% endfor %}
 
                     <ul>
                         <li>If user is signed in:

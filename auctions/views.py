@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from .models import User, Listing, Watch, Bid, Winner, Category
+from .models import User, Listing, Watch, Bid, Winner, Category, Comment
 from django.contrib.auth.decorators import login_required
 import re
 
@@ -13,7 +13,8 @@ def index(request):
     """
     View about the index page
     """
-    listings = Listing.objects.all()[::-1] #reverse listing with slice [::-1] such that last entry comes first
+    #reverse listing with slice [::-1] such that last entry comes first
+    listings = Listing.objects.all()[::-1] 
     
     for listing in listings:
         # change the image url to where static can access it
@@ -50,6 +51,7 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
+
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
@@ -78,7 +80,13 @@ def register(request):
 
 
 def categories(request):
-    categories = {item.category for item in Listing.objects.all()} # collect all active categories using set to avoid dublicate
+    """
+    categories View
+    """
+    # collect all active categories using 'set' to avoid dublicate
+    categories = {item.category for item in Listing.objects.all()} 
+
+    # pair each element listing with its total occurence
     categories = [(item, len(Listing.objects.filter(category = item))) for item in categories]
     pick = "These are the active categories" if (categories) else ""
     return render(request, "auctions/categories.html", {
@@ -89,24 +97,23 @@ def categories(request):
     
 @login_required
 def category(request, category):
-    category = category.upper()
-    cat = category
-    category = Listing.choice[category] # Fetch this category key from Listing class
-    categories = Listing.objects.filter(category = category) # Fetch all listing associated with this category key and reverse the listing with slice [::-1] such that last entry comes first
-    if categories:
-        # Generate categories
-        code_categories = [item.category for item in categories]
-        readable_categories = [Listing.value[item] for item in code_categories]    
-        items = zip(categories, readable_categories)
-        for listing in categories:
-            item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
-            listing.image = item
-    else:
-        items = zip([],[])           
+    """
+    categories View
+    """  
+    category = Category.objects.get(category=category) #inner category is just a string
+
+    # Fetch all listing associated with this category and reverse the listing with slice [::-1]
+    listings = Listing.objects.filter(category=category)[::-1]
+
+    for listing in listings:
+        item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
+        listing.image = item   
+
     return render(request, "auctions/index.html",{
-        "listings":items,
-        "title":f"{cat} Listings"
+        "listings":listings,
+        "title":f"{category.category.capitalize()} Listings",
     })
+
 
 class CreateListingForm(forms.Form):
     title = forms.CharField(label="Title:", max_length=64, widget=forms.TextInput(attrs={
@@ -121,7 +128,8 @@ class CreateListingForm(forms.Form):
     image = forms.ImageField(label="Upload Image:", widget=forms.ClearableFileInput(attrs={
         "class":"form-control"
     }))
-    # category = [item.category for item in Category.objects.all()] # [(k, v) for k,v in enumerate(category)]
+
+    # Define a list of turples for category choices
     categories =  [(item.id, item.category) for item in Category.objects.all()]
     category = forms.ChoiceField(label="Choose Category:", choices=categories, widget=forms.Select(attrs={
         "class":"form-control"
@@ -144,8 +152,7 @@ def createList(request):
             save_listing.save()
             save_listing.image=image
             save_listing.save()
-            
-            return HttpResponse("Success")
+            return HttpResponseRedirect(reverse('index'))
         return render(request, "auctions/createList.html", {
             "CreateListingForm":form
         }) 
@@ -154,56 +161,63 @@ def createList(request):
     })
 
 
-class BidForm(forms.Form):
-    bid = forms.IntegerField(label="Bid")
-
-@login_required
-def bid(request, id):
-    if request.method == "POST":
-        
-        # bid = request.POST.get("bid")
-        bidform = BidForm(request.POST)
-
-        if bidform.is_valid():
-            bid = bidform.cleaned_data["bid"]
-            # total bidder so far:
-            listing = Listing.objects.get(id=id)
-            if (bid>listing.c_price):
-                listing.highest_bidder = request.user
-                listing.c_price = bid
-                listing.save()
-                save_bid = Bid(user=request.user, listing=listing, bid=bid)
-                save_bid.save()
-                return HttpResponseRedirect(reverse('listing', args=(id,)))
-
-            return HttpResponse("Bid must be greater than current bid")
-        return HttpResponse("In valid form input")
-    
-    return HttpResponse("Error You have to Submit the form")
-
-
-@login_required
-def remove_listing(request, listing_id):
-    listing = Listing.objects.get(id=listing_id)
-    highest_bidder = listing.highest_bidder 
-    winner = Winner(user=highest_bidder, message=f"You have won {listing.title} with ${listing.c_price}")
-    winner.save()
-    listing.delete()
-    return HttpResponseRedirect(reverse("index"))
-
 def listing(request, id):
-    user = request.user
-    if user.is_authenticated:
+    
+    if request.user.is_authenticated:
+        # if request is not post
+        user = request.user
         listing = Listing.objects.get(id=id)
+
+        #Get this watch using the user and the specific listing
         watch = Watch.objects.filter(user=user, listing=listing)
+
         add_remove_watchlist = "Remove from Watchlist" if (watch) else "Add to Watchlist"
-        total_bid = listing.bid_listing.all() #Fetch all listing in listing of bids
+
+        # Find the total of all listing in bids' listing
+        total_bid = listing.bid_listing.all() 
         total_bid = len(total_bid)
+
+        # Get all comments i reverse order
+        comments = Comment.objects.all()[::-1]
+
+        if request.method == "POST":
+            bidform = BidForm(request.POST)
+
+            # if bidform is not valid
+            if not (bidform.is_valid()):
+                return render(request, "auctions/listing.html",{
+                    "listing": listing,
+                    "add_remove_watchlist": add_remove_watchlist,
+                    "bidform":  bidform,
+                    "total_bid": total_bid,
+                    "comments": comments
+                })
+            bid = bidform.cleaned_data["bid"]
+            listing = Listing.objects.get(id=id)
+            
+            # if bid is lower than current bid return error
+            if not (bid > listing.c_price):
+                return render(request, "auctions/listing.html",{
+                    "listing": listing,
+                    "add_remove_watchlist": add_remove_watchlist,
+                    "bidform":  bidform,
+                    "total_bid": total_bid,
+                    "comments": comments,
+                    "error": f"Unacceptable! {bid} <= {listing.c_price}. Your bid must be greater than current bid"
+                })
+            # since bid is greater than current bid, perform required operation
+            listing.highest_bidder = request.user
+            listing.c_price = bid
+            listing.save()
+            save_bid = Bid(user=request.user, listing=listing, bid=bid)
+            save_bid.save()
+
         return render(request, "auctions/listing.html",{
-            "listing":listing,
-            "add_remove_watchlist":add_remove_watchlist,
-            "bidform": BidForm(),
-            "total_bid": total_bid
+            "listing": listing,
+            "add_remove_watchlist": add_remove_watchlist,
+            "bidform":  BidForm(),
+            "total_bid": total_bid,
+            "comments": comments
         })
     return render(request, "auctions/listing.html")
 
@@ -218,36 +232,85 @@ def add_remove_watch(request, id):
     else:
         watch = Watch(user=user, listing=listing)
         watch.save()
-    return HttpResponseRedirect(reverse('listing', args=(id,)))
+    return HttpResponseRedirect(reverse('listing', args=(id,))) #args must be turple
 
+
+class BidForm(forms.Form):
+    bid = forms.IntegerField(widget=forms.NumberInput(attrs={
+        "class":"form-control",
+        "placeholder": "Bid"
+    }))
+
+
+@login_required
+def remove_listing(request, id):
+    listing = Listing.objects.get(id=id)
+
+    # save the highest bidder and its message
+    highest_bidder = listing.highest_bidder 
+    winner = Winner(user=highest_bidder, message=f"You have won {listing.title} with ${listing.c_price}")
+    winner.save()
+    listing.delete()
+    return HttpResponseRedirect(reverse("index"))
+
+
+@login_required
+def comment(request, id):
+    if request.method == "POST":
+        comment = request.POST.get("comment")
+        user = request.user
+        listing = Listing.objects.get(id=id)
+        save_comment = Comment(user=user, listing=listing, comment=comment)
+        save_comment.save()
+        return HttpResponseRedirect(reverse('listing', args=(id,)))
 
 @login_required    
 def watch(request):
+    """
+    watch View
+    """
     user = request.user # obtain user
-    user_items = user.owner.all() # get all user input in Watch model
-    # watch = [x.watchlist for x in watchlist]
-    watch = []
-    for item in user_items:
-            item = item.listing
-            image = re.sub("^.*/auctions/", "/auctions/", item.image.url)
-            item.image = image
-            watch.append(item)
-    # Generate categories
-    code_categories = [item.listing.category for item in user_items]
-    readable_categories = [Listing.value[item] for item in code_categories]    
-    items = zip(watch, readable_categories)
-    
+    # get all user listing in each user in Watch model
+    listings = [item.listing for item in user.owner.all()]
+    for listing in listings:
+        item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
+        listing.image = item 
     return render(request, "auctions/index.html",{
-        "listings":items,
-        "title":"Watchlist"
+        "listings":listings,
+        "title":"My Watchlist"
     })
 
+@login_required
 def won(request):
     user = request.user
     wins = [winner.message for winner in user.bid_winner.all()[::-1]]
     return render(request, "auctions/won.html",{
         "wins":wins
     })
+    
+
+
         
+
+
+# @login_required    
+# def watch(request):
+#     """
+#     watch View
+#     """
+#     user = request.user # obtain user
+#     user_items = user.owner.all() # get all user input in Watch model
+#     listings = []
+#     for item in user_items:
+#             item = item.listing
+#             image = re.sub("^.*/auctions/", "/auctions/", item.image.url)
+#             item.image = image
+#             listings.append(item)
+#     listings = listings[::-1]
+#     return render(request, "auctions/index.html",{
+#         "listings":listings,
+#         "title":"My Watchlist"
+#     })
+
 
 
