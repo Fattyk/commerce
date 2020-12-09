@@ -33,11 +33,12 @@
                         <a class="nav-link" href="{% url 'createList' %}">Create Listing</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'won' %}">Win Bid(s)</a>
+                    </li> 
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'won' %}">Win Bid(s)</a>
-                    </li>
+                    
                 {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Log In</a>

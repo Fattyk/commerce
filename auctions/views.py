@@ -177,8 +177,8 @@ def listing(request, id):
         total_bid = listing.bid_listing.all() 
         total_bid = len(total_bid)
 
-        # Get all comments i reverse order
-        comments = Comment.objects.all()[::-1]
+        # Get all comments in reverse order
+        comments = listing.com_listing.all()[::-1]
 
         if request.method == "POST":
             bidform = BidForm(request.POST)
