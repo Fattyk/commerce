@@ -6,7 +6,6 @@
 
 {% block head %}
     <link rel="stylesheet" href="{% static 'auctions/index.css' %}">
-    <!-- <link rel="stylesheet" href="{% static 'auctions/index2.css' %}"> -->
 {% endblock %}
 
 {% block body %}
@@ -21,10 +20,11 @@
                         <div class="for-content">
                             <div class="price">
                                 <p>${{listing.c_price}}.00</p>
-                                <small>Category:<span>{{ listing.category.category }}</span></small><br>
-                                <small>Created:<span>29/11/2020</span></small>
+                                <small>Category: <span>{{ listing.category.category }}</span></small><br>
+                                <small>Created: <span>{{listing.date.day }}/{{listing.date.month}}/{{listing.date.year }}</span></small><br>
+                                <small>Time: <span>{{listing.date.hour }}:{{listing.date.minute}}</span></small>
                             </div>
-                            <div class="description">{{listing.description}}</div>
+                            <div class="description"><small>{{listing.description}}</small></div>
                         </div>
                     </a>
             </section>

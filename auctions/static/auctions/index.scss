@@ -67,10 +67,14 @@ hr{
                 }
                 .description{
                     width: 59%;
+                    max-height: 60%;
                     text-align: left;
                     padding: 0px 10px;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 4; //number of lines to show
+                    -webkit-box-orient: vertical;
                 }
         
             }

@@ -119,7 +119,7 @@ class CreateListingForm(forms.Form):
     title = forms.CharField(label="Title:", max_length=64, widget=forms.TextInput(attrs={
         "class":"form-control"
     }))
-    description = forms.CharField(label="Description", max_length=100, widget=forms.Textarea(attrs={
+    description = forms.CharField(label="Description", max_length=300, widget=forms.Textarea(attrs={
         "class":"form-control"
     }))
     c_price = forms.IntegerField(label="Price", widget=forms.NumberInput(attrs={
@@ -167,6 +167,8 @@ def listing(request, id):
     listing.image = item
     
     if request.user.is_authenticated:
+        item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
+        listing.image = item
         # if request is not post
         user = request.user
 
@@ -187,6 +189,8 @@ def listing(request, id):
 
             # if bidform is not valid
             if not (bidform.is_valid()):
+                item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
+                listing.image = item
                 return render(request, "auctions/listing.html",{
                     "listing": listing,
                     "add_remove_watchlist": add_remove_watchlist,
@@ -199,6 +203,8 @@ def listing(request, id):
             
             # if bid is lower than current bid return error
             if not (bid > listing.c_price):
+                item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
+                listing.image = item
                 return render(request, "auctions/listing.html",{
                     "listing": listing,
                     "add_remove_watchlist": add_remove_watchlist,
@@ -213,7 +219,8 @@ def listing(request, id):
             listing.save()
             save_bid = Bid(user=request.user, listing=listing, bid=bid)
             save_bid.save()
-
+        item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
+        listing.image = item
         return render(request, "auctions/listing.html",{
             "listing": listing,
             "add_remove_watchlist": add_remove_watchlist,
@@ -242,7 +249,8 @@ def add_remove_watch(request, id):
 class BidForm(forms.Form):
     bid = forms.IntegerField(label="Enter Your Bid Price:", widget=forms.NumberInput(attrs={
         "class":"form-control",
-        "placeholder": "Enter Your Bid Price"
+        "placeholder": "Enter Your Bid Price",
+        "id":"bid"
     }))
 
 

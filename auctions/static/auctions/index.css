@@ -71,10 +71,14 @@ hr {
 }
 .main .item-container a .for-content .description {
   width: 59%;
+  max-height: 60%;
   text-align: left;
   padding: 0px 10px;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
 }
 
 /*# sourceMappingURL=index.css.map */

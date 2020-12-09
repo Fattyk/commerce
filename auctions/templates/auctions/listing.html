@@ -44,30 +44,37 @@
                     <small>{{ error }}</small>
                     {% endif %}
                 </div>
-                <input type="submit"  class="btn btn-secondary" value="Bid">
+                <input type="submit"  class="btn btn-secondary" value="bid">
             </form> 
             <br>
         
             <label>Details:</label>
             <ul class="comment">
-                {% if listing.highest_bidder.id == user.id %}
-                    <li>{{total_bid}} bids so far. </li>
-                    <li>You currently have the highest bid</li>
-                    <li>Your bid is the current bid</li>
+                {% if total_bid %}
+                    {% if listing.highest_bidder.id == user.id %}
+                        <li>{{total_bid}} bid(s) so far. </li>
+                        <li>You currently have the highest bid</li>
+                        <li>Your bid is the current bid</li>
+                    {% else %}
+                        <li>{{total_bid}} bid(s) so far. </li>
+                        <li>{{listing.highest_bidder.username}} has the highest bid</li>
+                        <li>{{listing.highest_bidder.username}}'s bid is the current bid</li>
+                    {% endif %}
                 {% else %}
-                    <li>{{total_bid}} bids so far. </li>
-                    <li>{{listing.highest_bidder.username}} has the highest bid</li>
-                    <li>{{listing.highest_bidder.username}}'s bid is the current bid</li>
+                    <li>No bid(s) yet. Scroll up or <a href="#bid">click here to Bid</a></li>
                 {% endif %}
+                <hr>
+                <li>Created: <span>{{listing.date.day }}/{{listing.date.month}}/{{listing.date.year }}</span></li>
+                <li>Time: <span>{{listing.date.hour }}:{{listing.date.minute}}</span></li>
             </ul>
-            
-            <h3>Comments Section</h3>
+            <br>
+            <h3 class="price">Comments Section</h3>
             <br>
 
             <form action="{% url 'comment' listing.id %}" method="POST">
                 {% csrf_token %}
                 <div class="form-group">
-                    <textarea name="comment" class="form-control" rows="5" placeholder="Add your Comment" maxlength="200"></textarea>
+                    <textarea name="comment" class="form-control" rows="5" placeholder="Add your Comment" maxlength="300"></textarea>
                 </div>
                 <input type="submit" class="btn btn-secondary">
             </form>
