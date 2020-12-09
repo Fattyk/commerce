@@ -5,100 +5,84 @@
 {% block title %} {{listing.title}} {% endblock %}
 
 {% block head %}
-    <style>
-        .main{
-            width: 700px;
-            margin: 0px auto;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'auctions/listing.css' %}" type="text/css">
 {% endblock %}
 
 {% block body %}
-    <h2>{{listing.title}}</h2>
+    {% if user.is_authenticated %}
+        <div class="d-flex justify-content-md-between">
+            <div class="p-2 align-self-center">
+                <a href="{% url 'add_remove_watch' listing.id %}"><button type="button" class="btn btn-secondary">{{add_remove_watchlist}}</button></a>
+            </div>
+            <div class="p-2 align-self-center">
+                {% if listing.user.id == user.id %}
+                    <a href="{% url 'remove_listing' listing.id %}"><button type="button" class="btn btn-secondary">Remove Listing</button></a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
 
     <!-- TODO -->
-        <section class="main">
-            {% if user.is_authenticated %}
-            <a href="{% url 'add_remove_watch' listing.id %}">{{add_remove_watchlist}}</a>
-            {% endif %}
-             This page will contain details about this particular listing:
-             <ol>
-                 <li>Title : {{listing.title}}</li>
-                 <li>Big Size Image</li>
-                 <li>Description : {{listing.description}}</li>
-                 <li>Current Bid Price : >${{listing.c_price}}.00</li>
-                    {% if user.is_authenticated %}
-
-
-                    <form action="{% url 'listing' listing.id %}" method="POST">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            {{ bidform }}
-                            {% if error %}
-                            <small>{{ error }}</small>
-                            {% endif %}
-                        </div>
-                        <input type="submit"  class="btn-btn-primary">
-                    </form>
-                    
-                    
-                    {% if listing.highest_bidder.id == user.id %}
-                    <small>{{total_bid}} bids so far. <span>You currently have the highest bid</span></small><br>
-                        Your bid is the current bid
-                    {% else %}
-                    <small>{{total_bid}} bids so far. <span>{{listing.highest_bidder.username}} has the highest bid</span></small><br>
-                        {{listing.highest_bidder.username}}'s bid is the current bid
+    <section class="main">
+        <h2 class="p-2 align-self-center">{{listing.title}}</h2>
+        
+        <!-- FOR IMG class="row comment" -->
+        <img src="{% static listing.image %}" alt="{{listing.title}}">
+        
+        <h2 class="price">${{listing.c_price}}.00</h2>
+        
+        <label>Description:</label>
+        <p class="comment desc">{{listing.description}}</p>
+        
+        <br>
+        {% if user.is_authenticated %}
+            <form action="{% url 'listing' listing.id %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ bidform }}
+                    {% if error %}
+                    <small>{{ error }}</small>
                     {% endif %}
-                    <br>
-                    {% if listing.user.id == user.id %}
-                        <a href="{% url 'remove_listing' listing.id %}">Remove listing</a>
-                    {% endif %}
+                </div>
+                <input type="submit"  class="btn btn-secondary" value="Bid">
+            </form> 
+            <br>
+        
+            <label>Details:</label>
+            <ul class="comment">
+                {% if listing.highest_bidder.id == user.id %}
+                    <li>{{total_bid}} bids so far. </li>
+                    <li>You currently have the highest bid</li>
+                    <li>Your bid is the current bid</li>
+                {% else %}
+                    <li>{{total_bid}} bids so far. </li>
+                    <li>{{listing.highest_bidder.username}} has the highest bid</li>
+                    <li>{{listing.highest_bidder.username}}'s bid is the current bid</li>
+                {% endif %}
+            </ul>
+            
+            <h3>Comments Section</h3>
+            <br>
 
-                    
+            <form action="{% url 'comment' listing.id %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <textarea name="comment" class="form-control" rows="5" placeholder="Add your Comment" maxlength="200"></textarea>
+                </div>
+                <input type="submit" class="btn btn-secondary">
+            </form>
+            <hr>
+        {% else %}
+            <li>Login for more Details and Bid</li>
+        {% endif %}
+        {% for comment in comments %}
+        <div class="comment">
+            <h6>{{ comment.user.username }}</h5>
+            <p>{{ comment.comment }}</p>
+            <br>
+        </div>
+        {% endfor %}
 
-                    <h3>Comments Section</h3>
-                    <br>
-                    <form action="{% url 'comment' listing.id %}" method="POST">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <textarea name="comment" class="form-control" placeholder="Add your Comment" maxlength="200"></textarea>
-                        </div>
-                        <input type="submit" class="btn-btn-primary">
-                    </form>
-                    <hr>
-                    {% for comment in comments %}
-                        <h6>{{ comment.user.username }}</h5>
-                        <p>{{ comment.comment }}</p>
-                        <br>
-                    {% endfor %}
-
-                    <ul>
-                        <li>If user is signed in:
-                        <li>Welcome <strong>{{ user.username }}</strong>.</li>
-                        <li>Add or remove from watchlist</li>
-                        <li>Bid on the item:
-                            <ul>
-                                <li>bid input must be greater than or equal to starting bid && must be greater than current bid if any</li>
-                                <li>Else: Provide error</li>
-                            </ul>
-                        </li>
-                        <li>if user is the listing owner:
-                            <ul>
-                                <li>Can remove the listing wish make highest bidder winner</li>
-                                <li>when remove, it will no longer be active</li>
-                            </ul>
-                        </li>
-                        <li>if the winner of the bid logs in on the bid, the page should announce him as winner</li>
-                        <li>A signed in user should be able to comment on the listing</li>
-                    </ul>
-                    {% else %}
-                        <li>Login for more actions</li>
-                    {% endif %}
-                         
-                 </li>
-                 <li>This page should display all comments</li>
-
-             </ol>
-        </section>
+    </section>
     
 {% endblock %}

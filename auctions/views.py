@@ -162,11 +162,13 @@ def createList(request):
 
 
 def listing(request, id):
+    listing = Listing.objects.get(id=id)
+    item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
+    listing.image = item
     
     if request.user.is_authenticated:
         # if request is not post
         user = request.user
-        listing = Listing.objects.get(id=id)
 
         #Get this watch using the user and the specific listing
         watch = Watch.objects.filter(user=user, listing=listing)
@@ -203,7 +205,7 @@ def listing(request, id):
                     "bidform":  bidform,
                     "total_bid": total_bid,
                     "comments": comments,
-                    "error": f"Unacceptable! {bid} <= {listing.c_price}. Your bid must be greater than current bid"
+                    "error": f"Unacceptable! {bid} <= {listing.c_price}. Your bid must be greater than current bid: {listing.c_price}"
                 })
             # since bid is greater than current bid, perform required operation
             listing.highest_bidder = request.user
@@ -219,7 +221,9 @@ def listing(request, id):
             "total_bid": total_bid,
             "comments": comments
         })
-    return render(request, "auctions/listing.html")
+    return render(request, "auctions/listing.html",{
+        "listing": listing
+    })
 
 
 @login_required
@@ -236,9 +240,9 @@ def add_remove_watch(request, id):
 
 
 class BidForm(forms.Form):
-    bid = forms.IntegerField(widget=forms.NumberInput(attrs={
+    bid = forms.IntegerField(label="Enter Your Bid Price:", widget=forms.NumberInput(attrs={
         "class":"form-control",
-        "placeholder": "Bid"
+        "placeholder": "Enter Your Bid Price"
     }))
 
 
@@ -288,29 +292,3 @@ def won(request):
         "wins":wins
     })
     
-
-
-        
-
-
-# @login_required    
-# def watch(request):
-#     """
-#     watch View
-#     """
-#     user = request.user # obtain user
-#     user_items = user.owner.all() # get all user input in Watch model
-#     listings = []
-#     for item in user_items:
-#             item = item.listing
-#             image = re.sub("^.*/auctions/", "/auctions/", item.image.url)
-#             item.image = image
-#             listings.append(item)
-#     listings = listings[::-1]
-#     return render(request, "auctions/index.html",{
-#         "listings":listings,
-#         "title":"My Watchlist"
-#     })
-
-
-
