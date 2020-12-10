@@ -137,6 +137,9 @@ class CreateListingForm(forms.Form):
 
 @login_required
 def createList(request):
+    """
+    Create Listing View
+    """
     if request.method == "POST":
         form = CreateListingForm(request.POST, request.FILES)
         user_id = int(request.POST.get("user_id"))
