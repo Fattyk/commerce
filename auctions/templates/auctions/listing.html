@@ -64,6 +64,7 @@
                     <li>No bid(s) yet. Scroll up or <a href="#bid">click here to Bid</a></li>
                 {% endif %}
                 <hr>
+                <li>Created by: <span style="color: blue;">{{listing.user.username }}</span></li>
                 <li>Created: <span>{{listing.date.day }}/{{listing.date.month}}/{{listing.date.year }}</span></li>
                 <li>Time: <span>{{listing.date.hour }}:{{listing.date.minute}}</span></li>
             </ul>

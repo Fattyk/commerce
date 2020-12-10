@@ -15,8 +15,5 @@ urlpatterns = [
     path("remove_listing/<int:id>", views.remove_listing, name="remove_listing"),
     path("comment/<int:id>", views.comment, name="comment"),
     path("watch", views.watch, name="watch"),
-    
-    
-    
     path("won", views.won, name="won")
 ]

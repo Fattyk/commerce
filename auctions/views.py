@@ -162,14 +162,17 @@ def createList(request):
 
 
 def listing(request, id):
+    # Get listing of this id
     listing = Listing.objects.get(id=id)
+
+    # Change the image url to where static can access it
     item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
     listing.image = item
     
     if request.user.is_authenticated:
         item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
         listing.image = item
-        # if request is not post
+
         user = request.user
 
         #Get this watch using the user and the specific listing
@@ -181,13 +184,13 @@ def listing(request, id):
         total_bid = listing.bid_listing.all() 
         total_bid = len(total_bid)
 
-        # Get all comments in reverse order
+        # Get all comments of this listing in reverse order
         comments = listing.com_listing.all()[::-1]
 
         if request.method == "POST":
             bidform = BidForm(request.POST)
 
-            # if bidform is not valid
+            # if bidform is not valid return form data
             if not (bidform.is_valid()):
                 item = re.sub("^.*/auctions/", "/auctions/", listing.image.url)
                 listing.image = item
