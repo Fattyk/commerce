@@ -12,11 +12,11 @@
     {% if user.is_authenticated %}
         <div class="d-flex justify-content-md-between">
             <div class="p-2 align-self-center">
-                <a href="{% url 'add_remove_watch' listing.id %}"><button type="button" class="btn btn-secondary">{{add_remove_watchlist}}</button></a>
+                <a href="{% url 'add_remove_watch' listing.id %}"><button type="button" class="btn btn-dark">{{add_remove_watchlist}}</button></a>
             </div>
             <div class="p-2 align-self-center">
                 {% if listing.user.id == user.id %}
-                    <a href="{% url 'remove_listing' listing.id %}"><button type="button" class="btn btn-secondary">Remove Listing</button></a>
+                    <a href="{% url 'remove_listing' listing.id %}"><button type="button" class="btn btn-dark">Remove Listing</button></a>
                 {% endif %}
             </div>
         </div>
@@ -44,7 +44,7 @@
                     <small>{{ error }}</small>
                     {% endif %}
                 </div>
-                <input type="submit"  class="btn btn-secondary" value="bid">
+                <input type="submit"  class="btn btn-dark" value="bid">
             </form> 
             <br>
         
@@ -65,7 +65,7 @@
                 {% endif %}
                 <hr>
                 <li>Created by: <span style="color: blue;">{{listing.user.username }}</span></li>
-                <li>Created: <span>{{listing.date.day }}/{{listing.date.month}}/{{listing.date.year }}</span></li>
+                <li>Date: <span>{{listing.date.day }}/{{listing.date.month}}/{{listing.date.year }}</span></li>
                 <li>Time: <span>{{listing.date.hour }}:{{listing.date.minute}}</span></li>
             </ul>
             <br>
@@ -77,7 +77,7 @@
                 <div class="form-group">
                     <textarea name="comment" class="form-control" rows="5" placeholder="Add your Comment" maxlength="300"></textarea>
                 </div>
-                <input type="submit" class="btn btn-secondary">
+                <input type="submit" class="btn btn-dark">
             </form>
             <hr>
         {% else %}

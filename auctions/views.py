@@ -202,7 +202,6 @@ def listing(request, id):
                     "comments": comments
                 })
             bid = bidform.cleaned_data["bid"]
-            listing = Listing.objects.get(id=id)
             
             # if bid is lower than current bid return error
             if not (bid > listing.c_price):

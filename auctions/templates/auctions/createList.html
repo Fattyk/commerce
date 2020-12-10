@@ -5,12 +5,7 @@
 {% block title %} Create Listing {% endblock %}
 
 {% block head %}
-    <style>
-        .main{
-            width: 700px;
-            margin: 0px auto;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'auctions/listing.css' %}"
 {% endblock %}
 
 {% block body %}
@@ -24,7 +19,7 @@
                  {{ CreateListingForm.as_p }}
                  <br>
                  <input type="hidden" name="user_id" value="{{user.id}}">
-                 <input type="submit" class="btn-btn-primary">
+                 <input type="submit" class="btn btn-dark">
                  <br>
                  <br>
              </form>
